@@ -63,7 +63,7 @@ if (Protobuf_FOUND)
         set (PROTOC_STATIC_LIB protobuf::libprotoc)
     endif ()
 
-    get_target_property (PROTOBUF_INCLUDE_DIR protobuf::libprotoc INTERFACE_INCLUDE_DIRECTORIES)
+    get_target_property (PROTOBUF_INCLUDE_DIR protobuf::libprotobuf INTERFACE_INCLUDE_DIRECTORIES)
 
 else()
     find_path (PROTOBUF_INCLUDE_DIR google/protobuf/io/zero_copy_stream.h HINTS

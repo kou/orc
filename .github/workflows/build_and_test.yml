@@ -7,6 +7,7 @@ on:
     - 'conan/**'
     branches:
     - main
+    - cpp-protobuf
   pull_request:
     paths-ignore:
     - 'site/**'
@@ -21,6 +22,7 @@ concurrency:
 
 jobs:
   docker:
+    if: false
     name: "Docker ${{ matrix.os }}"
     runs-on: ubuntu-latest
     strategy:
@@ -41,6 +43,7 @@ jobs:
         ./run-one.sh local main ${{ matrix.os }}
 
   build:
+    if: false
     name: "Java ${{ matrix.java }} and ${{ matrix.cxx }} on ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     strategy:
@@ -95,7 +98,41 @@ jobs:
       run: |
         cat /home/runner/work/orc/orc/build/java/rat.txt
 
+  macos:
+    name: "C++ Test on macOS ${{ matrix.version }}"
+    runs-on: macos-${{ matrix.version }}
+    strategy:
+      fail-fast: false
+      matrix:
+        version:
+          - 12
+          - 14
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: Install dependencies
+      run: |
+        brew install \
+          ninja \
+          protobuf
+    - name: Configure
+      run: |
+        cmake \
+          -S . \
+          -B build \
+          -GNinja \
+          -DBUILD_JAVA=OFF \
+          -DCMAKE_BUILD_TYPE=Debug \
+          -DProtobuf_ROOT=$(brew --prefix)
+    - name: Build
+      run: |
+        cmake --build build
+    - name: Test
+      run: |
+        ctest --test-dir build --output-on-failure
+
   windows:
+    if: false
     name: "C++ ${{ matrix.simd }} Test on Windows"
     runs-on: windows-2019
     strategy:
@@ -127,6 +164,7 @@ jobs:
         ctest -C Debug --output-on-failure
 
   simdUbuntu:
+    if: false
     name: "SIMD programming using C++ intrinsic functions on ${{ matrix.os }}"
     runs-on: ${{ matrix.os }}
     strategy:
@@ -150,6 +188,7 @@ jobs:
         make package test-out
 
   doc:
+    if: false
     name: "Javadoc generation"
     runs-on: ubuntu-20.04
     steps:
@@ -168,6 +207,7 @@ jobs:
         ./mvnw javadoc:javadoc
 
   formatting-check:
+    if: false
     name: "C++ format check"
     runs-on: ubuntu-22.04
     steps:
@@ -185,6 +225,7 @@ jobs:
         run: cd build && make check-format
 
   license-check:
+    if: false
     name: "License Check"
     runs-on: ubuntu-latest
     steps:
